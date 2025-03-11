@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Artists</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        nav a {
+            margin-right: 10px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        nav a:hover {
+            color: tomato;
+        }
+
+        .artist-list {
+            margin: 20px auto;
+            width: 80%;
+            list-style: none;
+            padding: 0;
+        }
+
+        .artist-list li {
+            background-color: #f2f2f2;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .artist-list li:hover {
+            background-color: tomato;
+            color: white;
+        }
+
+        .artist-list a {
+            text-decoration: none;
+            color: inherit;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="language_hits.html">Language Hits</a>
+        <a href="top_artists.html">Top Artists</a>
+        <a href="login.html">Login</a>
+        <a href="register.html">Register</a>
+       
+    </nav>
+
+    <ul class="artist-list" id="artistList"></ul>
+
+    <script>
+        // Fetch artists from the server
+        fetch('http://localhost:3000/top-artists')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch artists.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const artistList = document.getElementById('artistList');
+                artistList.innerHTML = '';
+
+                data.forEach(artist => {
+                    const listItem = document.createElement('li');
+                    const link = document.createElement('a');
+
+                    link.href = `listen.html?artist=${encodeURIComponent(artist.artistName)}`;
+                    link.textContent = `${artist.artistName} (${artist.songCount} songs)`;
+                    listItem.appendChild(link);
+                    artistList.appendChild(listItem);
+                });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    </script>
+</body>
+</html>

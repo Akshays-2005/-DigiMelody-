@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listen to Songs</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        #errorMessage {
+            color: red;
+            text-align: center;
+        }
+        #loadingIndicator {
+            text-align: center;
+            font-size: 1.2em;
+            color: #888;
+        }
+        #songList {
+            list-style: none;
+            padding: 0;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        #songList li {
+            padding: 15px;
+            background-color: #fff;
+            margin: 8px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            text-align: center;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+        }
+        #songList li:hover {
+            background-color: #5bc0de;
+            color: #fff;
+            transform: scale(1.05);
+        }
+        #audioPlayerContainer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: #222;
+            padding: 15px 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+            display: none;
+            text-align: center;
+            color: white;
+        }
+        #currentSongTitle {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        audio {
+            width: 100%;
+            max-width: 600px;
+            margin: auto;
+            display: block;
+        }
+        #audioControls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        button {
+            font-size: 1.2em;
+            padding: 12px 18px;
+            background-color: #5bc0de;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        button:hover {
+            background-color: #3b99a9;
+            transform: scale(1.1);
+        }
+        button:disabled {
+            background-color: #ddd;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>Listen to Songs</h1>
+    <h2 id="selectionTitle"></h2>
+
+    <div id="errorMessage"></div>
+    <div id="loadingIndicator" style="display: none;">Loading songs...</div>
+
+    <ul id="songList" style="display: none;"></ul>
+
+    <!-- Fixed Audio Player -->
+    <div id="audioPlayerContainer">
+        <div id="currentSongTitle">No song playing</div> <!-- Display current song title -->
+        <audio id="audioPlayer" controls>
+            <source id="audioSource" src="" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+        <div id="audioControls">
+            <button id="prevSongButton">← Previous</button>
+            <button id="skipBack">⏪ 10s</button>
+            <button id="skipForward">⏩ 10s</button>
+            <button id="nextSongButton">Next →</button>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000';
+        const songList = document.getElementById('songList');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const audioSource = document.getElementById('audioSource');
+        const errorMessage = document.getElementById('errorMessage');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const selectionTitle = document.getElementById('selectionTitle');
+        const skipBackButton = document.getElementById('skipBack');
+        const skipForwardButton = document.getElementById('skipForward');
+        const nextSongButton = document.getElementById('nextSongButton');
+        const prevSongButton = document.getElementById('prevSongButton');
+        const audioPlayerContainer = document.getElementById('audioPlayerContainer');
+        const currentSongTitle = document.getElementById('currentSongTitle'); // Display song title
+
+        let songs = [];
+        let currentSongIndex = -1;
+
+        // Get query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const selectedLanguage = urlParams.get('language');
+        const selectedArtist = urlParams.get('artist');
+
+        if (selectedLanguage) {
+            selectionTitle.textContent = `Top ${selectedLanguage} Hits`;
+            loadSongs(`/songs/${selectedLanguage}`);
+        } else if (selectedArtist) {
+            selectionTitle.textContent = `Top Songs by ${selectedArtist}`;
+            loadSongs(`/songs?artist=${encodeURIComponent(selectedArtist)}`);
+        } else {
+            errorMessage.textContent = "No selection made.";
+        }
+
+        async function loadSongs(endpoint) {
+            try {
+                loadingIndicator.style.display = 'block';
+                errorMessage.textContent = '';
+
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    errorMessage.textContent = 'Authentication token missing';
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch songs');
+
+                songs = await response.json();
+                songList.innerHTML = '';
+
+                if (songs.length === 0) {
+                    errorMessage.textContent = 'No songs found.';
+                    return;
+                }
+
+                songs.sort((a, b) => a.title.localeCompare(b.title));
+
+                songs.forEach((song, index) => {
+                    const li = document.createElement('li');
+                    li.textContent = song.title;
+                    li.onclick = () => playSong(index);
+                    songList.appendChild(li);
+                });
+
+                songList.style.display = 'block';
+            } catch (error) {
+                errorMessage.textContent = 'Error loading songs.';
+            } finally {
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        async function playSong(index) {
+            try {
+                currentSongIndex = index;
+
+                const token = localStorage.getItem('token');
+                if (!token) return;
+
+                const response = await fetch(`${API_BASE_URL}/play/${songs[currentSongIndex].filename}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) throw new Error('Error loading audio');
+
+                audioSource.src = URL.createObjectURL(await response.blob());
+                audioPlayer.load();
+                audioPlayer.onloadeddata = () => audioPlayer.play();
+
+                currentSongTitle.textContent = `Now Playing: ${songs[currentSongIndex].title}`; // Update song title
+
+                audioPlayerContainer.style.display = 'block';
+            } catch (error) {
+                errorMessage.textContent = 'Error playing song.';
+            }
+        }
+
+        audioPlayer.addEventListener('ended', () => {
+            playSong((currentSongIndex + 1) % songs.length);
+        });
+
+        skipBackButton.onclick = () => (audioPlayer.currentTime = Math.max(0, audioPlayer.currentTime - 10));
+        skipForwardButton.onclick = () => (audioPlayer.currentTime = Math.min(audioPlayer.duration, audioPlayer.currentTime + 10));
+        nextSongButton.onclick = () => playSong((currentSongIndex + 1) % songs.length);
+        prevSongButton.onclick = () => playSong((currentSongIndex - 1 + songs.length) % songs.length);
+    </script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Albums</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #errorMessage {
+            color: red;
+            margin-top: 10px;
+            text-align: center;
+        }
+        #albumList {
+            margin: 20px auto;
+            padding: 0;
+            list-style-type: none;
+            max-width: 800px;
+            text-align: center;
+        }
+        #albumList li {
+            padding: 15px;
+            background-color: #fff;
+            margin: 8px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            font-size: 1.1em;
+            color: #444;
+        }
+        #albumList li:hover {
+            background-color: #5bc0de;
+            transform: scale(1.05);
+            color: #fff;
+        }
+        #loadingIndicator {
+            font-size: 1.2em;
+            color: #888;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Movies</h1>
+    <div id="errorMessage"></div>
+    <div id="loadingIndicator" style="display: none;">Loading Movies...</div>
+    <ul id="albumList" style="display: none;"></ul>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3000'; // Replace with your backend API base URL
+        const albumList = document.getElementById('albumList');
+        const errorMessage = document.getElementById('errorMessage');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+
+        let albums = [];
+
+        // Fetch all albums from the database
+        async function loadAlbums() {
+            try {
+                loadingIndicator.style.display = 'block';
+                errorMessage.textContent = '';
+
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    errorMessage.textContent = 'Authentication token missing.';
+                    loadingIndicator.style.display = 'none';
+                    return;
+                }
+
+                const response = await fetch(`${API_BASE_URL}/album`, {
+                    headers: { 'Authorization': `Bearer ${token}` },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch movies.');
+                }
+
+                albums = await response.json();
+
+                if (albums.length === 0) {
+                    errorMessage.textContent = 'No  found.';
+                    loadingIndicator.style.display = 'none';
+                    return;
+                }
+
+                // Sort albums alphabetically by title
+                albums.sort((a, b) => a.title.localeCompare(b.title));
+
+                // Display the albums
+                albumList.innerHTML = '';
+                albums.forEach(album => {
+                    const li = document.createElement('li');
+                    li.textContent = `${album.title} (${album.releaseYear || 'Unknown Year'})`;
+                    li.onclick = () => showAlbumDetails(album);
+                    albumList.appendChild(li);
+                });
+
+                albumList.style.display = 'block';
+                loadingIndicator.style.display = 'none';
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                loadingIndicator.style.display = 'none';
+            }
+        }
+
+        // Show album details in an alert (can be extended to a modal)
+        function showAlbumDetails(album) {
+            alert(`Title: ${album.title}\nArtist: ${album.artist || 'N/A'}\nYear: ${album.releaseYear || 'Unknown'}\nDescription: ${album.description || 'No description available.'}`);
+        }
+
+        // Load albums on page load
+        window.onload = loadAlbums;
+    </script>
+</body>
+</html>

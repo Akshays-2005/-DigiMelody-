@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Hits</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick-theme.min.css">
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="language_hits.html">Language Hits</a>
+        <a href="top_artists.html">Top Artists</a>
+        <a href="login.html">Login</a>
+        <a href="register.html">Register</a>
+       
+    </nav>
+
+    <div class="language-hits-slider">
+        <div class="hit">
+            <h3>Kannada</h3>
+            <a href="listen.html?language=Kannada"><p>Top Kannada hits!</p></a>
+        </div>
+        <div class="hit">
+            <h3>Telugu</h3>
+            <a href="listen.html?language=Telugu"><p>Top Telugu hits!</p></a>
+        </div>
+        <div class="hit">
+            <h3>Hindi</h3>
+            <a href="listen.html?language=Hindi"><p>Top Hindi hits!</p></a>
+        </div>
+        <div class="hit">
+            <h3>English</h3>
+            <a href="listen.html?language=English"><p>Top English hits!</p></a>
+        </div>
+        <div class="hit">
+            <h3>Tamil</h3>
+            <a href="listen.html?language=Tamil"><p>Top Tamil hits!</p></a>
+        </div>
+        <div class="hit">
+            <h3>Malayalam</h3>
+            <a href="listen.html?language=Malayalam"><p>Top Malayalam hits!</p></a>
+        </div>
+        <div class="hit">
+            <h3>Bengali</h3>
+            <a href="listen.html?language=Bengali"><p>Top Bengali hits!</p></a>
+        </div>
+        <div class="hit">
+            <h3>Punjabi</h3>
+            <a href="listen.html?language=Punjabi"><p>Top Punjabi hits!</p></a>
+        </div>
+        <div class="hit">
+            <h3>Marathi</h3>
+            <a href="listen.html?language=Marathi"><p>Top Marathi hits!</p></a>
+        </div>
+        <div class="hit">
+            <h3>Gujarati</h3>
+            <a href="listen.html?language=Gujarati"><p>Top Gujarati hits!</p></a>
+        </div>
+        <div class="hit">
+            <h3>Assamese</h3>
+            <a href="listen.html?language=Assamese"><p>Top Assamese hits!</p></a>
+        </div>
+        <!-- Add more languages as needed -->
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('.language-hits-slider').slick({
+                infinite: true,    // Infinite looping
+                slidesToShow: 3,   // Number of slides to show at once
+                slidesToScroll: 1, // Number of slides to scroll
+                autoplay: true,    // Enable auto sliding
+                autoplaySpeed: 2000,  // Time between slides
+                arrows: true,      // Enable navigation arrows
+                dots: true         // Enable pagination dots
+            });
+        });
+    </script>
+</body>
+</html>

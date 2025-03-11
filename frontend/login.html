@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="btn">Login</button>
+            <p class="signup-link">Don't have an account? <a href="register.html">Sign up</a></p>
+        </form>
+        
+        <!-- Error message container -->
+        <div id="error-message" class="error-message"></div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('http://localhost:3000/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                // Check for the response status
+                if (response.ok) {
+                    const data = await response.json();
+                    const token = data.token;  // Assuming the token is returned as part of the response
+
+                    // Store the token in localStorage for future requests
+                    localStorage.setItem('token', token);
+
+                    alert('Login successful!');
+                    window.location.href = 'index.html'; // Redirect to homepage
+                } else {
+                    // If user is not found or other errors occur
+                    const data = await response.json();
+                    if (data.message && data.message === 'User not found') {
+                        document.getElementById('error-message').textContent = 'User not registered. Redirecting to registration page.';
+                        setTimeout(() => {
+                            window.location.href = 'register.html'; // Redirect to registration page
+                        }, 2000);  // Delay before redirecting to registration
+                    } else {
+                        document.getElementById('error-message').textContent = data.message || 'Login failed';  // Display any other error message from the server
+                    }
+                }
+            } catch (error) {
+                // Display error message on screen instead of using alert
+                document.getElementById('error-message').textContent = 'Error occurred. Please try again later.';
+                console.error(error);
+            }
+        });
+    </script>
+
+    <style>
+        /* Style for error message */
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</body>
+</html>
