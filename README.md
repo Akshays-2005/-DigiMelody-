@@ -3,7 +3,7 @@
 DigiMelody is a digital music player application that allows users to browse, play, and manage their favorite songs with a clean and simple interface.
 
 ## 🎥 Demo Video
-[Watch the Demo Video](#)  
+[Watch the Demo Video](https://drive.google.com/file/d/1e_CyeuOBubThx5UsDMchBBM730wk8LrB/view?usp=sharing)  
 
 ## 🚀 Features
 - Play, pause, next/previous track controls
