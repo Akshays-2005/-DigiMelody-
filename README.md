@@ -14,13 +14,14 @@ DigiMelody is a digital music player application that allows users to browse, pl
 ## 📂 Main Modules
 - **Frontend:** HTML, CSS, JavaScript
 - **Audio Module:** Web Audio API for playback control
-- **Data:** Local JSON/Static files for song list
+- **Data:** Static files for song list from MongoDB
 
 ## 🔧 Technologies Used
 - HTML
 - CSS
 - JavaScript
 - NodeJS
+- MongoDB
 
 ## 👨‍🎓 Built by
 Akshay S – [LinkedIn](https://www.linkedin.com/in/akshay-s-962494354/)  
